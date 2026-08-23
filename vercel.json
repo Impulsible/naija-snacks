@@ -5,7 +5,8 @@
       "src": "server/src/server.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/src/**/*"]
+        "includeFiles": ["server/**/*"],
+        "excludeFiles": ["server/node_modules/@types/react/**"]
       }
     },
     {
@@ -22,5 +23,8 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

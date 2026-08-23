@@ -1,25 +1,36 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "bundler",
-    "ignoreDeprecations": "6.0",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "allowSyntheticDefaultImports": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": ".",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "react", "react-dom"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node"],
+    "skipDefaultLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "build"]
+  "exclude": ["node_modules", "dist"],
+  "ts-node": {
+    "files": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 }
