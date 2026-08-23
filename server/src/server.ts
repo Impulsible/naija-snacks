@@ -52,7 +52,7 @@ app.use(errorHandler);
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (MONGODB_URI) {
+if (MONGODB_URI && MONGODB_URI !== 'mongodb://localhost:27017/naija-snacks') {
   mongoose
     .connect(MONGODB_URI)
     .then(() => {
@@ -62,7 +62,7 @@ if (MONGODB_URI) {
       console.error('❌ MongoDB connection error:', error);
     });
 } else {
-  console.log('⚠️ No MongoDB URI provided');
+  console.log('⚠️ No valid MongoDB URI provided. Running in local mode.');
 }
 
 // Export for Vercel
