@@ -40,7 +40,6 @@ app.get('/api/db-status', async (_req: Request, res: Response) => {
     res.json({
       status: states[state] || 'unknown',
       isConnected: state === 1,
-      readyState: state,
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to check DB status' });
@@ -53,7 +52,7 @@ app.use(errorHandler);
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (MONGODB_URI && MONGODB_URI !== 'mongodb://localhost:27017/naija-snacks') {
+if (MONGODB_URI) {
   mongoose
     .connect(MONGODB_URI)
     .then(() => {
@@ -63,7 +62,7 @@ if (MONGODB_URI && MONGODB_URI !== 'mongodb://localhost:27017/naija-snacks') {
       console.error('❌ MongoDB connection error:', error);
     });
 } else {
-  console.log('⚠️ No valid MongoDB URI provided. Running in local mode.');
+  console.log('⚠️ No MongoDB URI provided');
 }
 
 // Export for Vercel

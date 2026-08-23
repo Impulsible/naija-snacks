@@ -7,9 +7,14 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "seed": "tsx src/utils/seedData.ts"
+    "seed": "tsx src/utils/seedData.ts",
+    "vercel-build": "npm run build"
   },
-  "keywords": ["naija-snacks", "e-commerce", "nigerian-food"],
+  "keywords": [
+    "naija-snacks",
+    "e-commerce",
+    "nigerian-food"
+  ],
   "author": "Naija Snacks Team",
   "license": "MIT",
   "dependencies": {
