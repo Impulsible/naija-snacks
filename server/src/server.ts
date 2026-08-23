@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || '*',
   credentials: true,
 }));
 app.use(express.json());
@@ -32,21 +32,46 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Naija Snacks API is running' });
 });
 
+// Database status endpoint
+app.get('/api/db-status', async (_req: Request, res: Response) => {
+  try {
+    const state = mongoose.connection.readyState;
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    res.json({
+      status: states[state] || 'unknown',
+      isConnected: state === 1,
+      readyState: state,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to check DB status' });
+  }
+});
+
 // Error handler
 app.use(errorHandler);
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/naija-snacks';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+if (MONGODB_URI && MONGODB_URI !== 'mongodb://localhost:27017/naija-snacks') {
+  mongoose
+    .connect(MONGODB_URI)
+    .then(() => {
+      console.log('✅ Connected to MongoDB');
+    })
+    .catch((error) => {
+      console.error('❌ MongoDB connection error:', error);
     });
-  })
-  .catch((error) => {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
+} else {
+  console.log('⚠️ No valid MongoDB URI provided. Running in local mode.');
+}
+
+// Export for Vercel
+export default app;
+
+// Only start server if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
+}
