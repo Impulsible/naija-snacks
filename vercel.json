@@ -16,14 +16,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/src/server.ts"
+      "dest": "/server/src/server.ts"
     },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
