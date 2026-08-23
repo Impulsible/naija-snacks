@@ -1,0 +1,24 @@
+{
+  "name": "Naija Snacks",
+  "short_name": "Naija Snacks",
+  "description": "Authentic Nigerian snacks delivered fresh and warm",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#E85D04",
+  "background_color": "#FFFDF9",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
