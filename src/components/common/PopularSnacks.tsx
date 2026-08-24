@@ -88,15 +88,24 @@ const FilterTab = memo(function FilterTab({
   );
 });
 
+// ─── Category Display Name Mapping ──────────────────────────────────
+const CATEGORY_DISPLAY_NAMES: Record<string, string> = {
+  'chips---crisps': 'Chips & Crisps',
+  'pastries---pies': 'Pastries & Pies',
+  'small-chops': 'Small Chops',
+  'suya---grills': 'Suya & Grills',
+  'sweet-treats': 'Sweet Treats',
+};
+
 // ─── Category Filter Tabs Configuration ─────────────────────────────
-// These slugs should match your database category slugs
+// These slugs must match your database category slugs EXACTLY
 const FILTER_TABS = [
   { id: 'all', label: 'All Popular' },
-  { id: 'pastries', label: 'Pastries & Pies' },
-  { id: 'fried-snacks', label: 'Small Chops' },
-  { id: 'protein-snacks', label: 'Suya & Grills' },
-  { id: 'sweet-snacks', label: 'Sweet Treats' },
-  { id: 'chips', label: 'Chips & Crisps' },
+  { id: 'pastries---pies', label: 'Pastries & Pies' },
+  { id: 'small-chops', label: 'Small Chops' },
+  { id: 'suya---grills', label: 'Suya & Grills' },
+  { id: 'sweet-treats', label: 'Sweet Treats' },
+  { id: 'chips---crisps', label: 'Chips & Crisps' },
 ] as const;
 
 type FilterTabId = (typeof FILTER_TABS)[number]['id'];
@@ -136,10 +145,8 @@ export const PopularSnacks: React.FC<PopularSnacksProps> = ({
     const storedCart = localStorage.getItem('cart-storage');
     if (storedCart) {
       try {
-        const parsed = JSON.parse(storedCart);
-        if (parsed?.state?.items) {
-          // The store's persist middleware handles this automatically
-        }
+        JSON.parse(storedCart);
+        // The store's persist middleware handles this automatically
       } catch (error) {
         console.error('Error loading cart from localStorage:', error);
       }
@@ -222,13 +229,33 @@ export const PopularSnacks: React.FC<PopularSnacksProps> = ({
     return filtered.slice(0, limit);
   }, [products, activeTab, limit]);
 
+  // ─── Dynamic Filter Tabs from Categories ──────────────────────────
+  const dynamicFilterTabs = useMemo(() => {
+    if (!categories || categories.length === 0) {
+      return FILTER_TABS;
+    }
+    
+    const categorySlugs = categories.map((c: any) => c.slug || c);
+    const availableTabs = categorySlugs
+      .filter((slug: string) => categoryCounts[slug] && categoryCounts[slug] > 0)
+      .map((slug: string) => ({
+        id: slug,
+        label: CATEGORY_DISPLAY_NAMES[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+      }));
+    
+    return [
+      { id: 'all', label: 'All Popular' },
+      ...availableTabs
+    ];
+  }, [categories, categoryCounts]);
+
   // Get cart count for display
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
-  // Debug logging
+  // Debug logging - remove in production
   console.log('🔍 PopularSnacks Debug:');
   console.log('  Products count:', products.length);
-  console.log('  Categories:', categories.map((c: { slug: any; }) => c.slug).join(', '));
+  console.log('  Categories:', categories.map((c: any) => c.slug || c).join(', '));
   console.log('  Category counts:', categoryCounts);
   console.log('  Active tab:', activeTab);
   console.log('  Filtered products:', filteredProducts.length);
@@ -278,6 +305,9 @@ export const PopularSnacks: React.FC<PopularSnacksProps> = ({
       </section>
     );
   }
+
+  // Determine which tabs to display
+  const tabsToDisplay = dynamicFilterTabs.length > 1 ? dynamicFilterTabs : FILTER_TABS;
 
   return (
     <section
@@ -345,7 +375,7 @@ export const PopularSnacks: React.FC<PopularSnacksProps> = ({
         {showCategoryTabs && products.length > 0 && (
           <div className="flex items-center gap-2 overflow-x-auto pb-4 sm:pb-6 mb-6 sm:mb-8 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex items-center gap-1.5 sm:gap-2" role="tablist">
-              {FILTER_TABS.map((tab) => {
+              {tabsToDisplay.map((tab) => {
                 const count = categoryCounts[tab.id] || 0;
                 // Only show tabs that have products (or "All" tab)
                 if (tab.id !== 'all' && count === 0) {
@@ -373,7 +403,7 @@ export const PopularSnacks: React.FC<PopularSnacksProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
             {filteredProducts.map((product: Product) => (
               <ProductCard
-                key={product.id}
+                key={product.id || product._id}
                 product={product}
                 onAddToCart={onAddToCart || handleAddToCart}
                 onToggleFavorite={onToggleFavorite || handleToggleFavorite}
@@ -386,7 +416,7 @@ export const PopularSnacks: React.FC<PopularSnacksProps> = ({
           <div className="text-center py-16 px-4 bg-zinc-50 rounded-3xl border border-dashed border-zinc-200">
             <Sparkles size={36} className="text-zinc-300 mx-auto mb-3" />
             <p className="text-sm font-bold text-zinc-700">
-              No snacks in "{FILTER_TABS.find(t => t.id === activeTab)?.label || 'this category'}" yet
+              No snacks in "{tabsToDisplay.find(t => t.id === activeTab)?.label || 'this category'}" yet
             </p>
             <p className="text-xs text-zinc-400 mt-1">
               Check back shortly or explore our full catalog.

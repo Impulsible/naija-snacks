@@ -19,7 +19,8 @@ import { useCategories } from '../../hooks/useCategories';
 
 // ─── Types & Interfaces ─────────────────────────────────────────────
 export interface Category {
-  id: string;
+  id?: string;
+  _id?: string;
   name: string;
   slug: string;
   image?: string;
@@ -51,7 +52,7 @@ interface CategoryTheme {
 
 // ─── Visual Theme Mapping ───────────────────────────────────────────
 const CATEGORY_THEMES: Record<string, CategoryTheme> = {
-  pastries: {
+  'pastries---pies': {
     icon: ChefHat,
     gradient: 'from-amber-600/30 via-orange-500/10 to-transparent',
     badgeBg: 'bg-amber-500/10 backdrop-blur-md',
@@ -61,7 +62,7 @@ const CATEGORY_THEMES: Record<string, CategoryTheme> = {
     accentBg: 'bg-amber-500',
     iconColor: 'text-amber-600',
   },
-  'fried-snacks': {
+  'small-chops': {
     icon: Flame,
     gradient: 'from-orange-600/30 via-red-500/10 to-transparent',
     badgeBg: 'bg-orange-500/10 backdrop-blur-md',
@@ -71,7 +72,7 @@ const CATEGORY_THEMES: Record<string, CategoryTheme> = {
     accentBg: 'bg-orange-500',
     iconColor: 'text-orange-600',
   },
-  'sweet-snacks': {
+  'sweet-treats': {
     icon: Candy,
     gradient: 'from-rose-600/30 via-pink-500/10 to-transparent',
     badgeBg: 'bg-rose-500/10 backdrop-blur-md',
@@ -81,7 +82,7 @@ const CATEGORY_THEMES: Record<string, CategoryTheme> = {
     accentBg: 'bg-rose-500',
     iconColor: 'text-rose-600',
   },
-  chips: {
+  'chips---crisps': {
     icon: Disc3,
     gradient: 'from-yellow-600/30 via-amber-500/10 to-transparent',
     badgeBg: 'bg-yellow-500/10 backdrop-blur-md',
@@ -91,7 +92,7 @@ const CATEGORY_THEMES: Record<string, CategoryTheme> = {
     accentBg: 'bg-yellow-500',
     iconColor: 'text-yellow-700',
   },
-  'protein-snacks': {
+  'suya---grills': {
     icon: Beef,
     gradient: 'from-red-600/30 via-rose-500/10 to-transparent',
     badgeBg: 'bg-red-500/10 backdrop-blur-md',
@@ -409,11 +410,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
           )}
         </div>
 
-        {/* Categories Grid */}
+        {/* Categories Grid - FIXED: Added unique key prop */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
           {categories.map((category: Category, index: number) => (
             <CategoryCard
-              key={category.id}
+              key={category._id || category.id || category.slug || `category-${index}`}
               category={category}
               index={index}
               onClick={onCategoryClick}

@@ -1,6 +1,8 @@
 // src/services/api.ts
 import axios from 'axios';
 
+// In development, Vite proxy handles /api -> localhost:5000
+// In production on Vercel, /api routes to the serverless backend
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const api = axios.create({
@@ -8,7 +10,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 seconds timeout for serverless
+  timeout: 30000,
 });
 
 // Add token to requests if it exists
