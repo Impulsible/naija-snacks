@@ -48,7 +48,7 @@ const CustomInput = forwardRef<HTMLInputElement, InputProps>(
           {label}
         </label>
         <div
-          className={`group relative flex items-center w-full h-12 px-4 rounded-2xl border transition-all duration-200 shadow-2xs ${
+          className={`group relative flex items-center w-full h-11 sm:h-12 px-4 rounded-2xl border transition-all duration-200 shadow-2xs ${
             error
               ? 'border-red-300 bg-red-50/20 text-red-900 focus-within:border-red-500 focus-within:ring-4 focus-within:ring-red-500/10'
               : 'border-zinc-200/90 bg-white hover:border-zinc-300 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/10'
@@ -138,13 +138,13 @@ const ResetSuccessView = memo(function ResetSuccessView({
   };
 
   return (
-    <div className="max-w-md w-full mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-400">
+    <div className="max-w-md w-full mx-auto space-y-5 sm:space-y-6 animate-in fade-in zoom-in-95 duration-400">
       {/* Icon Badge */}
       <div className="text-center">
         <div className="relative inline-flex mb-3">
           <div className="absolute inset-0 rounded-full bg-orange-500/20 blur-xl animate-pulse" />
-          <div className="relative w-18 h-18 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-3xl flex items-center justify-center shadow-xl shadow-orange-500/25">
-            <Inbox size={36} className="text-white" />
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-3xl flex items-center justify-center shadow-xl shadow-orange-500/25">
+            <Inbox size={28} className="text-white" />
           </div>
         </div>
 
@@ -165,7 +165,7 @@ const ResetSuccessView = memo(function ResetSuccessView({
           href={providerUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="group w-full h-12 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-zinc-900/10 active:scale-[0.98] transition-all"
+          className="group w-full h-11 sm:h-12 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-zinc-900/10 active:scale-[0.98] transition-all"
         >
           <Mail size={16} />
           <span>Open Email Client</span>
@@ -200,7 +200,7 @@ const ResetSuccessView = memo(function ResetSuccessView({
           type="button"
           onClick={handleResend}
           disabled={countdown > 0 || isResending}
-          className="w-full h-11 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900 rounded-2xl font-bold text-xs sm:text-sm border border-zinc-200/80 shadow-2xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+          className="w-full h-10 sm:h-11 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900 rounded-2xl font-bold text-xs sm:text-sm border border-zinc-200/80 shadow-2xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
         >
           {isResending ? (
             <>
@@ -290,16 +290,16 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen w-full flex bg-gradient-to-br from-orange-50/40 via-white to-amber-50/30 overflow-hidden">
+    <main className="min-h-screen w-full flex flex-col lg:flex-row bg-gradient-to-br from-orange-50/40 via-white to-amber-50/30 overflow-hidden">
       {/* ── Left Pane: Interactive Recovery Form ───────────────────── */}
-      <div className="w-full lg:w-[52%] xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-18">
+      <div className="w-full lg:w-[52%] xl:w-[48%] flex flex-col justify-start lg:justify-between p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16">
         {/* Brand Header */}
-        <div className="flex items-center justify-between mb-8 sm:mb-10">
+        <div className="flex items-center justify-between mb-6 sm:mb-8 lg:mb-10">
           <Link to="/" className="flex items-center gap-2 group focus:outline-none">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
-              <Flame size={20} className="text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
+              <Flame size={18} className="text-white" />
             </div>
-            <span className="font-black text-xl tracking-tight text-zinc-900">
+            <span className="font-black text-base sm:text-xl tracking-tight text-zinc-900">
               Naija<span className="text-orange-600">Snacks</span>
             </span>
           </Link>
@@ -321,14 +321,14 @@ export const ForgotPasswordPage: React.FC = () => {
             onChangeEmail={() => setSubmittedEmail(null)}
           />
         ) : (
-          <div className="max-w-md w-full mx-auto space-y-6">
+          <div className="w-full max-w-md mx-auto space-y-4 sm:space-y-6 flex-1 flex flex-col justify-center lg:justify-start">
             {/* Header Copy */}
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-700 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider mb-1 shadow-2xs">
                 <ShieldCheck size={13} className="text-orange-600" />
                 <span>Account Recovery</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-zinc-900 leading-tight">
                 Reset your password
               </h1>
               <p className="text-sm sm:text-base text-zinc-500 leading-relaxed">
@@ -340,20 +340,20 @@ export const ForgotPasswordPage: React.FC = () => {
             {serverError && (
               <div
                 role="alert"
-                className="bg-red-50 border border-red-200/80 text-red-700 p-4 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
+                className="bg-red-50 border border-red-200/80 text-red-700 p-3 sm:p-4 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
               >
-                <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-500" />
+                <AlertCircle size={17} className="shrink-0 mt-0.5 text-red-500" />
                 <p className="text-xs sm:text-sm font-medium leading-relaxed">{serverError}</p>
               </div>
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4" noValidate>
               <CustomInput
                 label="Registered Email Address"
                 type="email"
                 placeholder="e.g. adebayo@example.com"
-                icon={<Mail size={18} />}
+                icon={<Mail size={17} />}
                 error={errors.email?.message}
                 autoComplete="email"
                 {...register('email')}
@@ -363,7 +363,7 @@ export const ForgotPasswordPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 mt-2 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full h-11 sm:h-12 mt-1 sm:mt-2 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -407,17 +407,17 @@ export const ForgotPasswordPage: React.FC = () => {
         )}
 
         {/* Footer Security Badges */}
-        <div className="mt-8 pt-6 border-t border-zinc-200/60 flex items-center justify-between text-xs text-zinc-400">
+        <div className="mt-6 sm:mt-8 lg:mt-10 pt-4 sm:pt-6 border-t border-zinc-200/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-400">
           <div className="flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-emerald-600" />
             <span>256-bit Secure Recovery Link</span>
           </div>
-          <p>© {new Date().getFullYear()} NaijaSnacks Ltd.</p>
+          <p className="text-[10px] sm:text-xs">© {new Date().getFullYear()} NaijaSnacks Ltd.</p>
         </div>
       </div>
 
       {/* ── Right Pane: Atmospheric Brand Showcase ─────────────────── */}
-      <div className="hidden lg:flex flex-1 relative bg-zinc-950 p-12 xl:p-16 flex-col justify-between overflow-hidden">
+      <div className="hidden lg:flex flex-1 relative bg-zinc-950 p-12 xl:p-16 flex-col justify-between overflow-hidden min-h-[400px]">
         {/* Background Image with Ambient Vignette */}
         <div className="absolute inset-0 z-0">
           <img

@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction, Router } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -6,6 +6,7 @@ import productRoutes from './routes/productRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import orderRoutes from './routes/orderRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -39,27 +40,24 @@ app.use(async (_req: Request, _res: Response, next: NextFunction) => {
 // ─── 2. Middleware ──────────────────────────────────────────────────
 app.use(
   cors({
-    origin: true,
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─── 3. Mount Routes (Handles BOTH /api/... and /...) ────────────────
-const apiRouter = Router();
+// ─── 3. Routes ──────────────────────────────────────────────────────
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 
-apiRouter.use('/products', productRoutes);
-apiRouter.use('/categories', categoryRoutes);
-apiRouter.use('/auth', authRoutes);
-apiRouter.use('/users', userRoutes);
-apiRouter.get('/health', (_req: Request, res: Response) => {
+// Health check
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Naija Snacks API is running' });
 });
-
-// Mount on /api (local dev & direct calls) AND root (Vercel serverless rewritten calls)
-app.use('/api', apiRouter);
-app.use('/', apiRouter);
 
 // ─── 4. Error Handler ───────────────────────────────────────────────
 app.use(errorHandler);

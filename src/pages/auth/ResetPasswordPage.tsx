@@ -144,7 +144,7 @@ const PasswordStrengthMeter = memo(function PasswordStrengthMeter({ value = '' }
         ))}
       </div>
 
-      <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-1 border-t border-zinc-200/50 list-none p-0 m-0">
+      <ul className="grid grid-cols-1 xs:grid-cols-2 gap-x-3 gap-y-1.5 pt-1 border-t border-zinc-200/50 list-none p-0 m-0">
         {requirements.map((req, idx) => (
           <li
             key={idx}
@@ -188,22 +188,22 @@ const SuccessRedirectView = memo(function SuccessRedirectView() {
   }, [navigate]);
 
   return (
-    <div className="max-w-md w-full mx-auto text-center space-y-6 py-10 animate-in fade-in zoom-in-95 duration-500">
+    <div className="max-w-md w-full mx-auto text-center space-y-5 sm:space-y-6 py-6 sm:py-10 animate-in fade-in zoom-in-95 duration-500">
       <div className="relative inline-flex mb-2">
         <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl animate-pulse" />
-        <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20">
-          <CheckCircle2 size={40} className="text-white animate-bounce" />
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <CheckCircle2 size={32} className="text-white animate-bounce" />
         </div>
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-3xl font-black text-zinc-900 tracking-tight">Password Reset!</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">Password Reset!</h1>
         <p className="text-sm sm:text-base text-zinc-500 max-w-xs mx-auto">
           Your new security credentials have been synced. You can now login safely with your updated password.
         </p>
       </div>
 
-      <div className="inline-flex items-center gap-2 bg-zinc-900 text-white px-4.5 py-2 rounded-2xl text-xs font-mono border border-white/10 shadow-md">
+      <div className="inline-flex items-center gap-2 bg-zinc-900 text-white px-3.5 sm:px-4.5 py-2 rounded-2xl text-xs font-mono border border-white/10 shadow-md">
         <Clock size={13} className="text-orange-400 animate-spin" />
         <span>Redirecting to Login in <span className="font-bold text-orange-400">{countdown}s</span>...</span>
       </div>
@@ -221,16 +221,16 @@ const SuccessRedirectView = memo(function SuccessRedirectView() {
 // ─── Invalid / Expired Token View ───────────────────────────────────
 const InvalidTokenView = memo(function InvalidTokenView() {
   return (
-    <div className="max-w-md w-full mx-auto text-center space-y-6 py-10 animate-in fade-in zoom-in-95 duration-500">
+    <div className="max-w-md w-full mx-auto text-center space-y-5 sm:space-y-6 py-6 sm:py-10 animate-in fade-in zoom-in-95 duration-500">
       <div className="relative inline-flex mb-2">
         <div className="absolute inset-0 rounded-full bg-red-500/20 blur-xl" />
-        <div className="relative w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-lg shadow-red-500/20">
-          <XCircle size={40} className="text-white" />
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center shadow-lg shadow-red-500/20">
+          <XCircle size={32} className="text-white" />
         </div>
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-3xl font-black text-zinc-900 tracking-tight">Link Expired</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">Link Expired</h1>
         <p className="text-sm sm:text-base text-zinc-500 max-w-xs mx-auto">
           For security reasons, recovery links are single-use and expire after 15 minutes.
         </p>
@@ -239,7 +239,7 @@ const InvalidTokenView = memo(function InvalidTokenView() {
       <div className="pt-2">
         <Link
           to="/forgot-password"
-          className="inline-flex items-center justify-center gap-2.5 h-12 w-full bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-bold text-sm shadow-md transition-all active:scale-95"
+          className="inline-flex items-center justify-center gap-2.5 h-11 sm:h-12 w-full bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl font-bold text-sm shadow-md transition-all active:scale-95"
         >
           <span>Request New Reset Link</span>
           <ArrowRight size={16} />
@@ -296,17 +296,17 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen w-full flex bg-gradient-to-br from-orange-50/40 via-white to-amber-50/30 overflow-hidden">
+    <main className="min-h-screen w-full flex flex-col lg:flex-row bg-gradient-to-br from-orange-50/40 via-white to-amber-50/30 overflow-hidden">
       {/* ── Left Pane: Interactive Reset Form ─────────────────────── */}
-      <div className="w-full lg:w-[52%] xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-18 overflow-y-auto">
+      <div className="w-full lg:w-[52%] xl:w-[48%] flex flex-col justify-start lg:justify-between p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 overflow-y-auto">
         
         {/* Brand Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
           <Link to="/" className="flex items-center gap-2 group focus:outline-none">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
-              <Flame size={20} className="text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
+              <Flame size={18} className="text-white" />
             </div>
-            <span className="font-black text-xl tracking-tight text-zinc-900">
+            <span className="font-black text-base sm:text-xl tracking-tight text-zinc-900">
               Naija<span className="text-orange-600">Snacks</span>
             </span>
           </Link>
@@ -327,10 +327,10 @@ export const ResetPasswordPage: React.FC = () => {
         ) : isSuccess ? (
           <SuccessRedirectView />
         ) : (
-          <div className="max-w-md w-full mx-auto space-y-6">
+          <div className="w-full max-w-md mx-auto space-y-4 sm:space-y-6 flex-1 flex flex-col justify-center lg:justify-start">
             {/* Header Copy */}
             <div className="space-y-1">
-              <h1 className="text-3xl font-black tracking-tight text-zinc-900 leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 leading-tight">
                 Reset your password
               </h1>
               <p className="text-sm text-zinc-500 font-medium">
@@ -339,7 +339,7 @@ export const ResetPasswordPage: React.FC = () => {
             </div>
 
             {/* Password Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4" noValidate>
               
               {/* New Password */}
               <CustomInput
@@ -372,7 +372,7 @@ export const ResetPasswordPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 mt-2 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full h-11 sm:h-12 mt-1 sm:mt-2 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -391,17 +391,17 @@ export const ResetPasswordPage: React.FC = () => {
         )}
 
         {/* Footer Security Badges */}
-        <div className="mt-8 pt-6 border-t border-zinc-200/60 flex items-center justify-between text-xs text-zinc-400">
+        <div className="mt-6 sm:mt-8 lg:mt-10 pt-4 sm:pt-6 border-t border-zinc-200/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-400">
           <div className="flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-emerald-600" />
             <span>Encrypted Credential Storage</span>
           </div>
-          <p>© {new Date().getFullYear()} NaijaSnacks Ltd.</p>
+          <p className="text-[10px] sm:text-xs">© {new Date().getFullYear()} NaijaSnacks Ltd.</p>
         </div>
       </div>
 
       {/* ── Right Pane: Atmospheric Brand Showcase ─────────────────── */}
-      <div className="hidden lg:flex flex-1 relative bg-zinc-950 p-12 xl:p-16 flex-col justify-between overflow-hidden">
+      <div className="hidden lg:flex flex-1 relative bg-zinc-950 p-12 xl:p-16 flex-col justify-between overflow-hidden min-h-[400px]">
         {/* Background Graphic Asset with Ambient Darkness */}
         <div className="absolute inset-0 z-0">
           <img

@@ -16,13 +16,14 @@ import {
   Flame,
   LogOut,
   Package,
-  Star,
   Truck,
   Gift,
   Zap,
   Percent,
   Tag,
   Sparkles,
+  LayoutDashboard,
+  Settings,
 } from 'lucide-react';
 import Container from './Container';
 import type { Product, Category } from '../../types';
@@ -444,7 +445,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
                     }}
                     className="flex items-center gap-3 p-2.5 rounded-2xl bg-white border border-amber-950/[0.07] hover:border-primary/40 hover:bg-orange-50/40 text-left transition-all group min-w-0"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-amber-100/40 overflow-hidden shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100/40 overflow-hidden shrink-0">
                       {product.image ? (
                         <img
                           src={product.image}
@@ -554,22 +555,55 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, onLogout }) => {
           </div>
 
           <div className="py-2">
-            {[
-              { to: '/account', label: 'My Account', icon: UserIcon },
-              { to: '/orders', label: 'My Orders', icon: Package },
-              { to: '/favorites', label: 'Favorites', icon: Heart },
-              { to: '/reviews', label: 'My Reviews', icon: Star },
-            ].map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
-              >
-                <item.icon size={14} />
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {/* Dashboard - Main Account Page */}
+            <Link
+              to="/account"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+            >
+              <LayoutDashboard size={14} />
+              <span>Dashboard</span>
+            </Link>
+
+            {/* Orders */}
+            <Link
+              to="/account/orders"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+            >
+              <Package size={14} />
+              <span>My Orders</span>
+            </Link>
+
+            {/* Favourites */}
+            <Link
+              to="/account/favourites"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+            >
+              <Heart size={14} />
+              <span>Favourites</span>
+            </Link>
+
+            {/* Profile */}
+            <Link
+              to="/account/profile"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+            >
+              <UserIcon size={14} />
+              <span>Profile</span>
+            </Link>
+
+            {/* Settings */}
+            <Link
+              to="/account/settings"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+            >
+              <Settings size={14} />
+              <span>Settings</span>
+            </Link>
           </div>
 
           <div className="border-t border-amber-950/10 py-2">
@@ -735,11 +769,12 @@ const Navbar: React.FC<NavbarProps> = ({
                   />
                   <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#FFFDF9] rounded-full" />
                 </div>
-                <div className="hidden sm:flex flex-col min-w-0">
-                  <span className="font-heading font-black text-base tracking-tight text-stone-900 leading-none">
+                
+                <div className="flex flex-col min-w-0">
+                  <span className="font-heading font-black text-sm sm:text-base tracking-tight text-stone-900 leading-none">
                     NAIJA<span className="text-primary">SNACKS</span>
                   </span>
-                  <span className="text-[9px] font-bold text-amber-700 uppercase tracking-widest leading-none mt-1">
+                  <span className="text-[8px] sm:text-[9px] font-bold text-amber-700 uppercase tracking-widest leading-none mt-1">
                     Fresh Warm Express
                   </span>
                 </div>
@@ -810,9 +845,9 @@ const Navbar: React.FC<NavbarProps> = ({
                   </kbd>
                 </button>
 
-                {/* Favorites */}
+                {/* Favorites - Updated to account favourites */}
                 <Link
-                  to="/favorites"
+                  to="/account/favourites"
                   className="hidden sm:inline-flex p-2 rounded-2xl hover:bg-amber-100/60 text-stone-700 hover:text-primary transition-colors"
                   aria-label="Favorites"
                 >
@@ -888,7 +923,6 @@ const Navbar: React.FC<NavbarProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-amber-950/10 shrink-0 bg-amber-50/15">
               <div className="flex items-center gap-2.5 min-w-0">
-                {/* Mobile Logo with Image */}
                 <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm">
                   <img 
                     src="/images/logo.png" 
@@ -915,6 +949,7 @@ const Navbar: React.FC<NavbarProps> = ({
               {isAuthenticated && user && (
                 <Link
                   to="/account"
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3 p-3 bg-gradient-to-br from-primary/5 to-orange-50 rounded-2xl border border-amber-950/10"
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center font-black shrink-0">
@@ -969,6 +1004,7 @@ const Navbar: React.FC<NavbarProps> = ({
                           : 'text-stone-700 hover:bg-amber-100/40 hover:text-stone-900'
                       }`
                     }
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <span className="flex items-center gap-2">
                       {link.label}
@@ -983,24 +1019,61 @@ const Navbar: React.FC<NavbarProps> = ({
                 ))}
               </nav>
 
-              {/* Quick Links */}
+              {/* Account Quick Links */}
               <div className="pt-3 border-t border-amber-950/10 space-y-1">
                 <p className="text-[10px] font-black text-amber-900/50 uppercase tracking-widest px-3 py-2">
-                  Quick Access
+                  Account
                 </p>
-                {[
-                  { to: '/favorites', label: 'Favorites', icon: Heart },
-                  { to: '/orders', label: 'My Orders', icon: Package },
-                ].map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
-                  >
-                    <item.icon size={15} />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
+                
+                {/* Dashboard */}
+                <Link
+                  to="/account"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                >
+                  <LayoutDashboard size={15} />
+                  <span>Dashboard</span>
+                </Link>
+
+                {/* Orders */}
+                <Link
+                  to="/account/orders"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                >
+                  <Package size={15} />
+                  <span>My Orders</span>
+                </Link>
+
+                {/* Favourites */}
+                <Link
+                  to="/account/favourites"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                >
+                  <Heart size={15} />
+                  <span>Favourites</span>
+                </Link>
+
+                {/* Profile */}
+                <Link
+                  to="/account/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                >
+                  <UserIcon size={15} />
+                  <span>Profile</span>
+                </Link>
+
+                {/* Settings */}
+                <Link
+                  to="/account/settings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                >
+                  <Settings size={15} />
+                  <span>Settings</span>
+                </Link>
               </div>
             </div>
 

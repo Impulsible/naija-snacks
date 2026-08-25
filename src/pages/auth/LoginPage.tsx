@@ -1,4 +1,4 @@
-import React, { useState, useId, forwardRef, memo } from 'react';
+import React, { useState, useId, forwardRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Sparkles,
   Check,
-  Copy,
   ShieldCheck,
   Flame,
   Star,
@@ -168,59 +167,6 @@ const CustomCheckbox = ({ label, checked, onChange, name }: CheckboxProps) => {
   );
 };
 
-// ─── Demo Credentials Helper Pill ───────────────────────────────────
-const DemoCredentialPill = memo(function DemoCredentialPill({
-  onFill,
-}: {
-  onFill: () => void;
-}) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    onFill();
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="rounded-2xl bg-orange-50/70 border border-orange-200/80 p-4 transition-all">
-      <div className="flex items-center justify-between gap-3 mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-orange-800">
-          <Sparkles size={13} className="text-orange-600" />
-          <span>Instant Demo Access</span>
-        </div>
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="inline-flex items-center gap-1 text-[11px] font-bold text-orange-700 bg-white hover:bg-orange-100/60 border border-orange-200 px-2.5 py-1 rounded-lg shadow-2xs transition-all active:scale-95"
-        >
-          {copied ? (
-            <>
-              <Check size={12} className="text-emerald-600" />
-              <span className="text-emerald-700">Autofilled!</span>
-            </>
-          ) : (
-            <>
-              <Copy size={12} />
-              <span>One-Click Autofill</span>
-            </>
-          )}
-        </button>
-      </div>
-      <div className="text-xs text-zinc-600 font-mono space-y-0.5 bg-white/60 p-2 rounded-xl border border-orange-100">
-        <p className="flex justify-between">
-          <span className="text-zinc-400 font-sans">Email:</span>
-          <span className="font-semibold text-zinc-800">demo@naijasnacks.ng</span>
-        </p>
-        <p className="flex justify-between">
-          <span className="text-zinc-400 font-sans">Password:</span>
-          <span className="font-semibold text-zinc-800">Password123</span>
-        </p>
-      </div>
-    </div>
-  );
-});
-
 // ─── Main LoginPage Component ───────────────────────────────────────
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -231,7 +177,6 @@ export const LoginPage: React.FC = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     control,
     formState: { errors },
   } = useForm<LoginSchema>({
@@ -242,13 +187,6 @@ export const LoginPage: React.FC = () => {
       rememberMe: false,
     },
   });
-
-  const handleAutofillDemo = () => {
-    setValue('email', 'demo@naijasnacks.ng', { shouldValidate: true });
-    setValue('password', 'Password123', { shouldValidate: true });
-    setValue('rememberMe', true);
-    setServerError('');
-  };
 
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
@@ -271,17 +209,17 @@ export const LoginPage: React.FC = () => {
       {/* ── Background Decorative Gradient ─────────────────────────── */}
       <div className="fixed inset-0 bg-gradient-to-br from-orange-50/40 via-white to-amber-50/30 -z-10" />
       
-      {/* ── Main Content with Slide Animation ──────────────────────── */}
-      <div className="w-full min-h-screen flex animate-[slideUp_0.6s_cubic-bezier(0.16,1,0.3,1)]">
+      {/* ── Main Content ────────────────────────────────────────────── */}
+      <div className="w-full min-h-screen flex flex-col lg:flex-row">
         {/* ── Left Pane: Interactive Login Form ──────────────────────── */}
-        <div className="w-full lg:w-[52%] xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-18">
+        <div className="w-full lg:w-[52%] xl:w-[48%] flex flex-col justify-start lg:justify-between p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16">
           {/* Brand Header */}
-          <div className="flex items-center justify-between mb-8 sm:mb-10">
+          <div className="flex items-center justify-between mb-6 sm:mb-8 lg:mb-10">
             <Link to="/" className="flex items-center gap-2 group focus:outline-none">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
-                <Flame size={20} className="text-white" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
+                <Flame size={18} className="text-white" />
               </div>
-              <span className="font-black text-xl tracking-tight text-zinc-900">
+              <span className="font-black text-base sm:text-xl tracking-tight text-zinc-900">
                 Naija<span className="text-orange-600">Snacks</span>
               </span>
             </Link>
@@ -295,10 +233,10 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {/* Form Container */}
-          <div className="max-w-md w-full mx-auto space-y-6">
+          <div className="w-full max-w-md mx-auto space-y-5 sm:space-y-6 flex-1 flex flex-col justify-center lg:justify-start">
             {/* Header Copy */}
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-tight">
+            <div className="space-y-1 sm:space-y-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-zinc-900 leading-tight">
                 Welcome back!
               </h1>
               <p className="text-sm sm:text-base text-zinc-500">
@@ -307,27 +245,27 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {/* Social Logins */}
-            <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
               <button
                 type="button"
-                className="flex items-center justify-center gap-2.5 h-11 px-4 rounded-2xl border border-zinc-200/90 bg-white hover:bg-zinc-50 text-xs sm:text-sm font-bold text-zinc-800 shadow-2xs hover:shadow-xs transition-all active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 h-10 sm:h-11 px-3 sm:px-4 rounded-2xl border border-zinc-200/90 bg-white hover:bg-zinc-50 text-xs sm:text-sm font-bold text-zinc-800 shadow-2xs hover:shadow-xs transition-all active:scale-[0.98]"
               >
                 <GoogleIcon />
-                <span>Google</span>
+                <span className="hidden xs:inline">Google</span>
               </button>
               <button
                 type="button"
-                className="flex items-center justify-center gap-2.5 h-11 px-4 rounded-2xl border border-zinc-200/90 bg-white hover:bg-zinc-50 text-xs sm:text-sm font-bold text-zinc-800 shadow-2xs hover:shadow-xs transition-all active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 h-10 sm:h-11 px-3 sm:px-4 rounded-2xl border border-zinc-200/90 bg-white hover:bg-zinc-50 text-xs sm:text-sm font-bold text-zinc-800 shadow-2xs hover:shadow-xs transition-all active:scale-[0.98]"
               >
                 <AppleIcon />
-                <span>Apple ID</span>
+                <span className="hidden xs:inline">Apple ID</span>
               </button>
             </div>
 
             {/* Divider */}
             <div className="relative flex items-center justify-center">
               <div className="w-full border-t border-zinc-200" />
-              <span className="absolute bg-white px-3 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+              <span className="absolute bg-white px-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-zinc-400">
                 Or with email
               </span>
             </div>
@@ -336,20 +274,20 @@ export const LoginPage: React.FC = () => {
             {serverError && (
               <div
                 role="alert"
-                className="bg-red-50 border border-red-200/80 text-red-700 p-4 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
+                className="bg-red-50 border border-red-200/80 text-red-700 p-3 sm:p-4 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
               >
-                <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-500" />
+                <AlertCircle size={17} className="shrink-0 mt-0.5 text-red-500" />
                 <p className="text-xs sm:text-sm font-medium leading-relaxed">{serverError}</p>
               </div>
             )}
 
             {/* Core Credentials Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4" noValidate>
               <CustomInput
                 label="Email Address"
                 type="email"
                 placeholder="e.g. adebayo@example.com"
-                icon={<Mail size={18} />}
+                icon={<Mail size={17} />}
                 error={errors.email?.message}
                 autoComplete="email"
                 {...register('email')}
@@ -359,7 +297,7 @@ export const LoginPage: React.FC = () => {
                 label="Password"
                 type="password"
                 placeholder="Enter your account password"
-                icon={<Lock size={18} />}
+                icon={<Lock size={17} />}
                 error={errors.password?.message}
                 showPasswordToggle
                 autoComplete="current-password"
@@ -367,7 +305,7 @@ export const LoginPage: React.FC = () => {
               />
 
               {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between gap-2 pt-1">
+              <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 pt-1">
                 <Controller
                   name="rememberMe"
                   control={control}
@@ -393,7 +331,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 mt-2 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full h-11 sm:h-12 mt-1 sm:mt-2 bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -408,23 +346,20 @@ export const LoginPage: React.FC = () => {
                 )}
               </button>
             </form>
-
-            {/* Quick Demo Autofill Box */}
-            <DemoCredentialPill onFill={handleAutofillDemo} />
           </div>
 
           {/* Footer Security Badges */}
-          <div className="mt-8 pt-6 border-t border-zinc-200/60 flex items-center justify-between text-xs text-zinc-400">
+          <div className="mt-6 sm:mt-8 lg:mt-10 pt-4 sm:pt-6 border-t border-zinc-200/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-400">
             <div className="flex items-center gap-1.5">
               <ShieldCheck size={14} className="text-emerald-600" />
               <span>End-to-End 256-bit Encrypted</span>
             </div>
-            <p>© {new Date().getFullYear()} NaijaSnacks Ltd.</p>
+            <p className="text-[10px] sm:text-xs">© {new Date().getFullYear()} NaijaSnacks Ltd.</p>
           </div>
         </div>
 
         {/* ── Right Pane: Atmospheric Brand Showcase ─────────────────── */}
-        <div className="hidden lg:flex flex-1 relative bg-zinc-950 p-12 xl:p-16 flex-col justify-between overflow-hidden">
+        <div className="hidden lg:flex flex-1 relative bg-zinc-950 p-12 xl:p-16 flex-col justify-between overflow-hidden min-h-[400px]">
           {/* Background Image with Ambient Vignette */}
           <div className="absolute inset-0 z-0">
             <img

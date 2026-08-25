@@ -1,32 +1,74 @@
-# React + TypeScript + Vite
+# 🇳🇬 Naija Snacks
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A modern full-stack e-commerce platform for discovering, exploring, and ordering authentic Nigerian snacks.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🛍️ **Product Discovery** - Browse snacks by category, search, and filter
+- 🛒 **Shopping Cart** - Add items, update quantities, persistent storage
+- 💳 **Secure Payments** - Paystack integration for card payments
+- 📦 **Order Management** - Track orders from placement to delivery
+- 👤 **User Accounts** - Register, login, manage profile
+- ❤️ **Favourites** - Save your favourite snacks
+- 📊 **Admin Dashboard** - Manage products, orders, and customers
+- 📱 **Responsive Design** - Optimized for mobile and desktop
 
-## React Compiler
+## 🚀 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- Zustand
+- React Hook Form + Zod
+- Framer Motion
 
-## Expanding the Oxlint configuration
+### Backend
+- Node.js + Express
+- TypeScript
+- MongoDB + Mongoose
+- JWT Authentication
+- Paystack
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 📦 Installation
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+### Prerequisites
+- Node.js 18+
+- MongoDB
+- npm or yarn
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/impulsible/naija-snacks.git
+cd naija-snacks
+
+
+🤝 Contributing
+Fork the repository
+
+Create a feature branch
+
+Commit your changes
+
+Push to the branch
+
+Open a pull request
+
+📝 License
+MIT License
+
+👥 Demo Accounts
+Customer: demo@naijasnacks.ng / Password123
+
+Admin: admin@naijasnacks.ng / Admin123
+
+🙏 Acknowledgments
+Nigerian food culture and heritage
+
+All contributors and testers
+
+Open source community

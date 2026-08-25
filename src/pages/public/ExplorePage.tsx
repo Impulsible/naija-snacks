@@ -139,11 +139,11 @@ const FilterSidebarContent: React.FC<{
           )}
         </div>
         <div className="space-y-2">
-          {categories.map((cat) => {
+          {categories.map((cat, index) => {
             const isChecked = filters.categories.includes(cat.slug);
             return (
               <label
-                key={cat.id}
+                key={cat._id || cat.id || cat.slug || `sidebar-cat-${index}`}
                 className={`flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-all border ${
                   isChecked
                     ? 'bg-amber-100/60 border-primary/30 text-stone-900'
@@ -297,6 +297,8 @@ const ProductCard: React.FC<{
     return '';
   }, [product.description]);
 
+  const productId = product._id || product.id;
+
   if (viewMode === 'list') {
     return (
       <div className="group relative flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 bg-white rounded-3xl border border-amber-950/10 shadow-sm hover:shadow-md hover:border-primary/30 transition-all gap-4">
@@ -399,7 +401,7 @@ const ProductCard: React.FC<{
         <button
           onClick={() => {
             setIsFavorite(!isFavorite);
-            onToggleFavorite?.(product.id);
+            onToggleFavorite?.(productId);
           }}
           className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-xs text-stone-600 hover:text-red-500 transition-colors"
           aria-label="Favorite"
@@ -700,11 +702,11 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             >
               All Snacks ({products.length})
             </button>
-            {categories.map((cat: Category) => {
+            {categories.map((cat: Category, index) => {
               const isSelected = filters.categories.includes(cat.slug);
               return (
                 <button
-                  key={cat.id}
+                  key={cat._id || cat.id || cat.slug || `carousel-cat-${index}`}
                   onClick={() => {
                     const next = isSelected
                       ? filters.categories.filter((c) => c !== cat.slug)
@@ -807,9 +809,9 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             {/* Active Filters Tag Pills */}
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                {filters.categories.map((catSlug) => (
+                {filters.categories.map((catSlug, index) => (
                   <span
-                    key={catSlug}
+                    key={`${catSlug}-${index}`}
                     className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-100 text-amber-950 text-[11px] font-bold border border-amber-950/10"
                   >
                     <span>{catSlug}</span>
@@ -886,14 +888,17 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
                     : 'space-y-3'
                 }
               >
-                {products.map((product: Product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    viewMode={viewMode}
-                    onToggleFavorite={onToggleFavorite}
-                  />
-                ))}
+                {products.map((product: Product, index: any) => {
+                  const safeProductId = product._id || product.id || `explore-product-${index}`;
+                  return (
+                    <ProductCard
+                      key={safeProductId}
+                      product={product}
+                      viewMode={viewMode}
+                      onToggleFavorite={onToggleFavorite}
+                    />
+                  );
+                })}
               </div>
             ) : (
               /* Empty State Banner */
