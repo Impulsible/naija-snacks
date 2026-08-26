@@ -10,7 +10,7 @@ const adminDetails = {
   firstName: 'Henry',                    // ← Your first name
   lastName: 'Osuagwu',                   // ← Your last name
   email: 'henry@naijasnacks.ng',         // ← Your email
-  password: 'Henry123',                  // ← Your password (min 8 chars, 1 uppercase, 1 number)
+  password: 'Supreme2$',                  // ← Your password (min 8 chars, 1 uppercase, 1 number)
   phone: '+2348000000000',               // ← Your phone number
 };
 

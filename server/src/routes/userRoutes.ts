@@ -1,3 +1,4 @@
+// src/routes/userRoutes.ts (Backend)
 import express from 'express';
 import { protect, authorize } from '../middleware/auth';
 import { User } from '../models/User';
@@ -188,16 +189,28 @@ router.get('/favorites/check/:productId', protect, async (req, res) => {
 });
 
 // ─── Admin Routes ──────────────────────────────────────────────
+
+// ✅ FIX: Changed from '/all' to '/' and added pagination handling
 // Get all users (admin only)
-router.get('/all', protect, authorize('admin'), async (_req, res) => {
+router.get('/', protect, authorize('admin'), async (req, res) => {
   try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await User.countDocuments();
     const users = await User.find()
       .select('-password')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     return res.json({
       success: true,
       count: users.length,
+      totalUsers: total,
+      page,
+      pages: Math.ceil(total / limit),
       users,
     });
   } catch (error) {

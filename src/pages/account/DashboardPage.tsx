@@ -102,7 +102,7 @@ const DashboardPage = () => {
       icon: MapPin,
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
       iconBg: 'bg-emerald-500/10 text-emerald-600',
-      link: '/account/addresses',
+      link: '/account/profile',
     },
   ];
 

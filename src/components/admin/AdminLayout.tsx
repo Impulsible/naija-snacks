@@ -1,47 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Package,
   ShoppingCart,
+  Package,
   Users,
-  Tag,
-  BarChart3,
   Settings,
   LogOut,
+  ChevronRight,
+  Store,
+  Sparkles,
+  ShieldAlert,
   Menu,
   X,
-  Store,
-  ExternalLink,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+  PlusCircle} from 'lucide-react';
+import Container from '../layout/Container'; // Adjust path based on your folders
+import { useAuth } from '../../context/AuthContext'; // Adjust path based on your folders
 
 interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
+  actions?: React.ReactNode; // Optional header slots for action buttons (e.g., "Add Product")
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({
+  children,
+  title,
+  subtitle,
+  actions,
+}) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // Lock body scroll when mobile drawer is open
-  useEffect(() => {
-    document.body.style.overflow = isSidebarOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isSidebarOpen]);
-
-  // Close mobile drawer on route change
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -51,195 +42,282 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) 
   const initials =
     user?.firstName && user?.lastName
       ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-      : user?.email?.[0]?.toUpperCase() || 'A';
+      : user?.email?.[0]?.toUpperCase() || 'AD';
 
-  const navItems = [
+  const displayName =
+    user?.firstName || user?.lastName
+      ? [user.firstName, user.lastName].filter(Boolean).join(' ')
+      : user?.email?.split('@')[0] || 'Administrator';
+
+  // Navigation config tailored specifically for admin features
+  const adminNavItems = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    { to: '/admin/products', label: 'Products', icon: Package },
-    { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-    { to: '/admin/customers', label: 'Customers', icon: Users },
-    { to: '/admin/categories', label: 'Categories', icon: Tag },
-    { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { to: '/admin/settings', label: 'Settings', icon: Settings },
+    { to: '/admin/orders', label: 'Manage Orders', icon: ShoppingCart },
+    { to: '/admin/products', label: 'Snack Inventory', icon: Package },
+    { to: '/admin/users', label: 'Customer Base', icon: Users },
+    { to: '/admin/settings', label: 'System Settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex">
-      {/* ── Mobile Backdrop ──────────────────────────────────────────── */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm z-[90] lg:hidden transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
-          aria-hidden="true"
-        />
+    <div className="min-h-screen bg-[#FFFDF9] text-stone-900 pb-16 lg:pb-24">
+      {/* ── Mobile Header Sticky Nav ── */}
+      <header className="sticky top-0 z-40 lg:hidden bg-[#FFFDF9]/95 backdrop-blur-md border-b border-amber-950/10 px-4 py-3 flex items-center justify-between">
+        <Link to="/admin" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-stone-950 flex items-center justify-center text-white font-black text-sm">
+            N
+          </div>
+          <span className="font-heading font-black text-xs tracking-wider uppercase text-stone-950">
+            HQ Portal
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-xl bg-stone-100 border border-stone-200/60 text-stone-800"
+            aria-label="Toggle Navigation Menu"
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </header>
+
+      {/* ── Mobile Sidebar Drawer Slide-over ── */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          <nav className="fixed top-0 bottom-0 left-0 w-[280px] bg-[#FFFDF9] border-r border-amber-950/10 p-6 flex flex-col justify-between overflow-y-auto shadow-2xl z-50">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 rounded-xl bg-stone-900 flex items-center justify-center text-white font-black text-base">
+                    N
+                  </div>
+                  <span className="font-heading font-black text-sm tracking-wider uppercase text-stone-950">
+                    HQ Control
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-500"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Navigation Items */}
+              <div className="space-y-1">
+                {adminNavItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-stone-700 hover:bg-amber-50/80 hover:text-stone-900'
+                      }`
+                    }
+                  >
+                    <item.icon size={18} />
+                    <span>{item.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-6 border-t border-amber-950/10">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut size={18} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </nav>
+        </div>
       )}
 
-      {/* ── Sidebar ──────────────────────────────────────────────────── */}
-      <aside
-        className={`
-          fixed inset-y-0 left-0 w-72 bg-stone-950 flex flex-col z-[100]
-          transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0
-          ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
-        `}
-      >
-        {/* Brand Header — fixed height, never shrinks */}
-        <div className="h-20 px-6 border-b border-stone-800/60 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white shadow-lg shadow-primary/25 shrink-0">
-              <Store size={20} className="stroke-[2.5]" />
-            </div>
-            <div className="min-w-0">
-              <span className="font-heading font-black text-sm tracking-wider text-white block truncate">
-                NAIJA SNACKS
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
-                  Admin Console
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile close */}
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-xl bg-stone-900 text-stone-400 hover:text-white hover:bg-stone-800 transition-colors shrink-0"
-            aria-label="Close sidebar"
+      {/* ── Main Layout Wrapper ── */}
+      <div className="pt-6 sm:pt-8 lg:pt-12">
+        <Container>
+          {/* Breadcrumbs */}
+          <nav
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-stone-500 mb-6 lg:mb-8"
+            aria-label="Breadcrumb"
           >
-            <X size={18} />
-          </button>
-        </div>
+            <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
+              <Store size={12} />
+              <span>Storefront</span>
+            </Link>
+            <ChevronRight size={14} className="text-stone-300 shrink-0" />
+            <Link to="/admin" className="hover:text-primary transition-colors">
+              HQ Control Panel
+            </Link>
+            <ChevronRight size={14} className="text-stone-300 shrink-0" />
+            <span className="text-stone-900 font-black truncate">{title}</span>
+          </nav>
 
-        {/* Navigation — grows and scrolls if needed */}
-        <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-1 scrollbar-thin scrollbar-thumb-stone-800">
-          <span className="px-3 text-[10px] font-black uppercase tracking-widest text-stone-500 block mb-3">
-            Main Management
-          </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            
+            {/* ── Desktop Left Sidebar ── */}
+            <aside className="hidden lg:block lg:col-span-4 xl:col-span-3 space-y-4">
+              
+              {/* Admin Identity Card */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-900 via-stone-900 to-stone-950 text-white p-5 border border-amber-900/20 shadow-lg shadow-amber-950/10">
+                <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                onClick={() => setIsSidebarOpen(false)}
-                className={({ isActive }) =>
-                  `group flex items-center justify-between px-3.5 py-3.5 rounded-2xl font-heading text-xs font-bold transition-all duration-200 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-primary to-orange-600 text-white shadow-lg shadow-primary/20'
-                      : 'text-stone-400 hover:text-white hover:bg-stone-900'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <div className="flex items-center gap-3">
-                      <Icon
-                        size={18}
-                        className={
-                          isActive
-                            ? 'text-white'
-                            : 'text-stone-400 group-hover:text-stone-200 transition-colors'
-                        }
-                      />
-                      <span>{item.label}</span>
+                <div className="relative z-10 flex items-center gap-3.5">
+                  <div className="relative shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center text-lg font-black shadow-md shadow-primary/30">
+                      {initials}
                     </div>
-                    {isActive && (
-                      <Sparkles size={13} className="text-white/80 fill-current shrink-0" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 border-2 border-stone-900 animate-pulse" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-heading font-black text-base text-white truncate leading-tight">
+                      {displayName}
+                    </p>
+                    <p className="text-[11px] text-stone-400 truncate mt-0.5">
+                      {user?.email || 'admin@naijasnacks.com'}
+                    </p>
+                    <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-lg bg-red-500/20 border border-red-500/30 text-[9px] font-black uppercase tracking-wider text-red-300">
+                      <ShieldAlert size={10} />
+                      HQ Ops Control
+                    </span>
+                  </div>
+                </div>
+
+                {/* Direct Command Shortcuts */}
+                <div className="relative z-10 mt-5 pt-4 border-t border-white/10 grid grid-cols-2 gap-2">
+                  <Link
+                    to="/admin/products/new"
+                    className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-stone-200 transition-colors"
+                  >
+                    <PlusCircle size={12} className="text-primary" />
+                    New Snack
+                  </Link>
+                  <Link
+                    to="/"
+                    target="_blank"
+                    className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-stone-200 transition-colors"
+                  >
+                    <Store size={12} className="text-amber-400" />
+                    View Live
+                  </Link>
+                </div>
+              </div>
+
+              {/* Main Admin Sidebar Navigation */}
+              <div className="bg-white rounded-3xl border border-amber-950/10 shadow-sm overflow-hidden">
+                <div className="px-4 pt-4 pb-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-900/50 px-2">
+                    Operational Control
+                  </p>
+                </div>
+
+                <nav className="px-2 pb-2 space-y-0.5" aria-label="HQ navigation">
+                  {adminNavItems.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      end={item.end}
+                      className={({ isActive }) =>
+                        `group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+                          isActive
+                            ? 'bg-primary/10 text-primary shadow-sm'
+                            : 'text-stone-700 hover:bg-amber-50/80 hover:text-stone-900'
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <span
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                              isActive
+                                ? 'bg-primary text-white shadow-md shadow-primary/25'
+                                : 'bg-amber-50 text-stone-500 group-hover:bg-amber-100/80 group-hover:text-primary'
+                            }`}
+                          >
+                            <item.icon size={16} />
+                          </span>
+                          <span className="flex-1 min-w-0 truncate">{item.label}</span>
+                          <ChevronRight
+                            size={14}
+                            className={`shrink-0 transition-all ${
+                              isActive
+                                ? 'text-primary opacity-100'
+                                : 'text-stone-300 opacity-0 group-hover:opacity-100'
+                            }`}
+                          />
+                        </>
+                      )}
+                    </NavLink>
+                  ))}
+                </nav>
+
+                <div className="p-2 pt-1 border-t border-amber-950/5">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <span className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                      <LogOut size={16} />
+                    </span>
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Ribbon */}
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-2xl bg-amber-50/60 border border-amber-900/10 text-[10px] font-bold text-stone-600">
+                <Sparkles size={12} className="text-primary shrink-0" />
+                <span>System Secure · SSL Active</span>
+              </div>
+            </aside>
+
+            {/* ── Main Data Display Panel ── */}
+            <main className="col-span-1 lg:col-span-8 xl:col-span-9 min-w-0">
+              <div className="bg-white rounded-3xl border border-amber-950/10 shadow-sm overflow-hidden">
+                
+                {/* Dashboard Panel Header */}
+                <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-5 border-b border-amber-950/5 bg-gradient-to-r from-amber-50/40 via-white to-white">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="min-w-0">
+                      <h1 className="text-2xl sm:text-3xl font-heading font-black tracking-tight text-stone-900">
+                        {title}
+                      </h1>
+                      {subtitle && (
+                        <p className="text-xs sm:text-sm text-stone-500 font-medium mt-1.5 max-w-xl leading-relaxed">
+                          {subtitle}
+                        </p>
+                      )}
+                    </div>
+                    {actions && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        {actions}
+                      </div>
                     )}
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
+                  </div>
+                </div>
 
-        {/* User Dock — pinned to bottom, never shrinks */}
-        <div className="shrink-0 p-4 border-t border-stone-800/60 space-y-2">
-          {/* Profile card */}
-          <div className="p-3 rounded-2xl bg-stone-900 border border-stone-800/80 flex items-center gap-3">
-            <div className="relative shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-primary text-white flex items-center justify-center font-heading font-black text-sm">
-                {initials}
+                {/* Child view slot */}
+                <div className="p-5 sm:p-8">{children}</div>
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-stone-900" />
-            </div>
+            </main>
 
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-black text-white truncate">
-                {user?.firstName
-                  ? `${user.firstName} ${user.lastName || ''}`.trim()
-                  : 'Store Admin'}
-              </p>
-              <div className="flex items-center gap-1 mt-0.5">
-                <ShieldCheck size={11} className="text-primary shrink-0" />
-                <span className="text-[10px] text-stone-400 font-semibold capitalize truncate">
-                  {user?.role || 'System Admin'}
-                </span>
-              </div>
-            </div>
           </div>
-
-          {/* Sign out */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-xs font-bold text-stone-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all active:scale-[0.98]"
-          >
-            <LogOut size={15} />
-            <span>Sign Out Session</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ── Main Content ─────────────────────────────────────────────── */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-w-0 min-h-screen relative z-0">
-        {/* Sticky header */}
-        <header className="sticky top-0 z-30 h-20 px-4 sm:px-8 flex items-center justify-between gap-4 backdrop-blur-md bg-white/85 border-b border-amber-950/5">
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2.5 rounded-xl bg-stone-100 text-stone-600 hover:text-stone-900 hover:bg-stone-200 transition-colors shrink-0"
-              aria-label="Open sidebar menu"
-            >
-              <Menu size={20} />
-            </button>
-
-            <div className="min-w-0">
-              <h1 className="font-heading font-black text-xl sm:text-2xl text-stone-900 truncate leading-tight">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-xs text-stone-500 font-medium truncate hidden sm:block mt-0.5">
-                  {subtitle}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Live store link */}
-          <Link
-            to="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-primary text-xs font-black border border-stone-200/60 hover:border-amber-200 transition-all active:scale-95 shadow-sm shrink-0"
-          >
-            <span className="hidden sm:inline">View Live Store</span>
-            <span className="sm:hidden">Store</span>
-            <ExternalLink
-              size={13}
-              className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-            />
-          </Link>
-        </header>
-
-        {/* Page body */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
-          {children}
-        </main>
+        </Container>
       </div>
     </div>
   );

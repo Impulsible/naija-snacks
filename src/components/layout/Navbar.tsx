@@ -24,6 +24,7 @@ import {
   Sparkles,
   LayoutDashboard,
   Settings,
+  ShieldCheck,
 } from 'lucide-react';
 import Container from './Container';
 import type { Product, Category } from '../../types';
@@ -519,6 +520,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, onLogout }) => {
     ? (user.firstName[0] + user.lastName[0]).toUpperCase()
     : user?.email?.[0]?.toUpperCase() || 'U';
 
+  const userRole = (user?.role || '').toString().toLowerCase();
+  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+
   return (
     <div ref={menuRef} className="relative z-[120] animate-[fadeIn_0.2s_ease-out]">
       <button
@@ -555,55 +559,67 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, onLogout }) => {
           </div>
 
           <div className="py-2">
-            {/* Dashboard - Main Account Page */}
-            <Link
-              to="/account"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
-            >
-              <LayoutDashboard size={14} />
-              <span>Dashboard</span>
-            </Link>
+            {/* Admin Link Highlight */}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-700 bg-red-50/50 hover:bg-red-50 hover:text-red-800 transition-colors"
+              >
+                <ShieldCheck size={14} className="text-red-600" />
+                <span>Admin Portal</span>
+              </Link>
+            )}
 
-            {/* Orders */}
-            <Link
-              to="/account/orders"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
-            >
-              <Package size={14} />
-              <span>My Orders</span>
-            </Link>
+            {/* ONLY SHOW THESE IF NOT ADMIN */}
+            {!isAdmin && (
+              <>
+                <Link
+                  to="/account"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+                >
+                  <LayoutDashboard size={14} />
+                  <span>Dashboard</span>
+                </Link>
 
-            {/* Favourites */}
-            <Link
-              to="/account/favourites"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
-            >
-              <Heart size={14} />
-              <span>Favourites</span>
-            </Link>
+                <Link
+                  to="/account/orders"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+                >
+                  <Package size={14} />
+                  <span>My Orders</span>
+                </Link>
 
-            {/* Profile */}
-            <Link
-              to="/account/profile"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
-            >
-              <UserIcon size={14} />
-              <span>Profile</span>
-            </Link>
+                <Link
+                  to="/account/favourites"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+                >
+                  <Heart size={14} />
+                  <span>Favourites</span>
+                </Link>
 
-            {/* Settings */}
-            <Link
-              to="/account/settings"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
-            >
-              <Settings size={14} />
-              <span>Settings</span>
-            </Link>
+                <Link
+                  to="/account/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+                >
+                  <UserIcon size={14} />
+                  <span>Profile</span>
+                </Link>
+
+                <Link
+                  to="/account/settings"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary transition-colors"
+                >
+                  <Settings size={14} />
+                  <span>Settings</span>
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="border-t border-amber-950/10 py-2">
@@ -659,6 +675,9 @@ const Navbar: React.FC<NavbarProps> = ({
     () => (promos && promos.length > 0 ? promos : DEFAULT_PROMOS),
     [promos]
   );
+
+  const userRole = (user?.role || '').toString().toLowerCase();
+  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
 
   // ─── Effects ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -845,35 +864,39 @@ const Navbar: React.FC<NavbarProps> = ({
                   </kbd>
                 </button>
 
-                {/* Favorites - Updated to account favourites */}
-                <Link
-                  to="/account/favourites"
-                  className="hidden sm:inline-flex p-2 rounded-2xl hover:bg-amber-100/60 text-stone-700 hover:text-primary transition-colors"
-                  aria-label="Favorites"
-                >
-                  <Heart size={18} />
-                </Link>
+                {/* Favorites - Hide if admin */}
+                {!isAdmin && (
+                  <Link
+                    to="/account/favourites"
+                    className="hidden sm:inline-flex p-2 rounded-2xl hover:bg-amber-100/60 text-stone-700 hover:text-primary transition-colors"
+                    aria-label="Favorites"
+                  >
+                    <Heart size={18} />
+                  </Link>
+                )}
 
-                {/* Cart */}
-                <button
-                  onClick={handleCartClick}
-                  className="group flex items-center gap-2 bg-gradient-to-r from-primary to-orange-600 hover:from-primary-dark hover:to-orange-700 text-white pl-2.5 pr-3 py-2 rounded-xl font-bold text-xs shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                  aria-label={`Cart (${cartCount} items)`}
-                >
-                  <div className="relative">
-                    <ShoppingBag size={16} />
+                {/* Cart - Hide completely if admin (optional), kept visible for now */}
+                {!isAdmin && (
+                  <button
+                    onClick={handleCartClick}
+                    className="group flex items-center gap-2 bg-gradient-to-r from-primary to-orange-600 hover:from-primary-dark hover:to-orange-700 text-white pl-2.5 pr-3 py-2 rounded-xl font-bold text-xs shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    aria-label={`Cart (${cartCount} items)`}
+                  >
+                    <div className="relative">
+                      <ShoppingBag size={16} />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-amber-200 text-stone-950 text-[9px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-xs">
+                          {cartCount > 99 ? '99+' : cartCount}
+                        </span>
+                      )}
+                    </div>
                     {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-amber-200 text-stone-950 text-[9px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-xs">
-                        {cartCount > 99 ? '99+' : cartCount}
+                      <span className="hidden sm:inline border-l border-white/25 pl-2 font-bold tracking-tight">
+                        {cartSummary.formattedTotal}
                       </span>
                     )}
-                  </div>
-                  {cartCount > 0 && (
-                    <span className="hidden sm:inline border-l border-white/25 pl-2 font-bold tracking-tight">
-                      {cartSummary.formattedTotal}
-                    </span>
-                  )}
-                </button>
+                  </button>
+                )}
 
                 {/* User Menu / Sign In */}
                 {isAuthenticated && user ? (
@@ -948,7 +971,7 @@ const Navbar: React.FC<NavbarProps> = ({
               {/* User Card */}
               {isAuthenticated && user && (
                 <Link
-                  to="/account"
+                  to={isAdmin ? "/admin" : "/account"}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-3 p-3 bg-gradient-to-br from-primary/5 to-orange-50 rounded-2xl border border-amber-950/10"
                 >
@@ -1025,55 +1048,67 @@ const Navbar: React.FC<NavbarProps> = ({
                   Account
                 </p>
                 
-                {/* Dashboard */}
-                <Link
-                  to="/account"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
-                >
-                  <LayoutDashboard size={15} />
-                  <span>Dashboard</span>
-                </Link>
+                {/* Admin Link Highlight (Mobile) */}
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-red-700 bg-red-50/50 hover:bg-red-50 hover:text-red-800 rounded-xl transition-colors mb-2"
+                  >
+                    <ShieldCheck size={15} className="text-red-600" />
+                    <span>Admin Portal</span>
+                  </Link>
+                )}
 
-                {/* Orders */}
-                <Link
-                  to="/account/orders"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
-                >
-                  <Package size={15} />
-                  <span>My Orders</span>
-                </Link>
+                {/* ONLY SHOW THESE IF NOT ADMIN */}
+                {!isAdmin && (
+                  <>
+                    <Link
+                      to="/account"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                    >
+                      <LayoutDashboard size={15} />
+                      <span>Dashboard</span>
+                    </Link>
 
-                {/* Favourites */}
-                <Link
-                  to="/account/favourites"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
-                >
-                  <Heart size={15} />
-                  <span>Favourites</span>
-                </Link>
+                    <Link
+                      to="/account/orders"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                    >
+                      <Package size={15} />
+                      <span>My Orders</span>
+                    </Link>
 
-                {/* Profile */}
-                <Link
-                  to="/account/profile"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
-                >
-                  <UserIcon size={15} />
-                  <span>Profile</span>
-                </Link>
+                    <Link
+                      to="/account/favourites"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                    >
+                      <Heart size={15} />
+                      <span>Favourites</span>
+                    </Link>
 
-                {/* Settings */}
-                <Link
-                  to="/account/settings"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
-                >
-                  <Settings size={15} />
-                  <span>Settings</span>
-                </Link>
+                    <Link
+                      to="/account/profile"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                    >
+                      <UserIcon size={15} />
+                      <span>Profile</span>
+                    </Link>
+
+                    <Link
+                      to="/account/settings"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold text-stone-700 hover:bg-amber-50 hover:text-primary rounded-xl transition-colors"
+                    >
+                      <Settings size={15} />
+                      <span>Settings</span>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 

@@ -63,6 +63,19 @@ const getUserData = (req: AuthRequest) => {
   };
 };
 
+// Helper: Normalize order document to match frontend interface expectation
+const formatOrder = (orderDoc: any) => {
+  if (!orderDoc) return null;
+  const doc = orderDoc.toObject ? orderDoc.toObject() : { ...orderDoc };
+
+  return {
+    ...doc,
+    id: doc._id?.toString() || doc.id,
+    status: doc.orderStatus || doc.status || 'pending',
+    customer: doc.user || doc.customer || null,
+  };
+};
+
 // ─── Create Order ──────────────────────────────────────────────────
 export const createOrder = async (
   req: AuthRequest,
@@ -107,7 +120,6 @@ export const createOrder = async (
       }
     }
 
-    // Order number generated dynamically on pre-save hook
     const order = await Order.create({
       user: user.id,
       items,
@@ -133,11 +145,12 @@ export const createOrder = async (
       $push: { orders: order._id },
     });
 
-    // Return flat ID alongside order property to prevent undefined issues on the frontend
+    const formatted = formatOrder(order);
+
     res.status(201).json({
       success: true,
       id: order._id.toString(),
-      order,
+      order: formatted,
     });
   } catch (error) {
     console.error('Create order error:', error);
@@ -173,9 +186,11 @@ export const getUserOrders = async (
       Order.countDocuments(query),
     ]);
 
+    const formattedOrders = orders.map(formatOrder);
+
     res.json({
       success: true,
-      orders,
+      orders: formattedOrders,
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -206,21 +221,23 @@ export const getOrderById = async (
       ? { _id: req.params.id }
       : { orderNumber: req.params.id };
 
-    const order = await Order.findOne(query).populate('items.product');
+    const order = await Order.findOne(query)
+      .populate('user', 'firstName lastName email phone')
+      .populate('items.product');
 
     if (!order) {
       res.status(404).json({ success: false, message: 'Order not found' });
       return;
     }
 
-    if (order.user.toString() !== user.id && user.role !== 'admin') {
+    if (order.user._id.toString() !== user.id && user.role !== 'admin') {
       res.status(403).json({ success: false, message: 'Not authorized to view this order' });
       return;
     }
 
     res.json({
       success: true,
-      order,
+      order: formatOrder(order),
     });
   } catch (error) {
     next(error);
@@ -276,7 +293,7 @@ export const initializePayment = async (
           },
           body: JSON.stringify({
             email: user.email,
-            amount: Math.round(order.total * 100), // Convert to kobo
+            amount: Math.round(order.total * 100), // Kobo
             reference: reference,
             callback_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/order-confirmation/${order._id}`,
             metadata: {
@@ -305,8 +322,7 @@ export const initializePayment = async (
       }
     }
 
-    // ─── FALLBACK: Simulate Local Payment Test Mode ───────────────────
-    console.log('🔧 Using simulated payment test mode.');
+    // Fallback: Test Mode Simulation
     order.paymentStatus = 'paid';
     order.orderStatus = 'confirmed';
     order.paymentReference = reference;
@@ -396,7 +412,8 @@ export const updateOrderStatus = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { orderStatus } = req.body;
+    // Support both orderStatus and status in request body
+    const orderStatus = req.body.orderStatus || req.body.status;
     const validStatuses = ['pending', 'confirmed', 'processing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'];
     
     if (!validStatuses.includes(orderStatus)) {
@@ -411,21 +428,18 @@ export const updateOrderStatus = async (
       req.params.id,
       { orderStatus },
       { new: true }
-    );
+    )
+      .populate('user', 'firstName lastName email phone')
+      .populate('items.product');
 
     if (!order) {
       res.status(404).json({ success: false, message: 'Order not found' });
       return;
     }
 
-    if (orderStatus === 'delivered') {
-      order.orderStatus = 'delivered';
-      await order.save();
-    }
-
     res.json({
       success: true,
-      order,
+      order: formatOrder(order),
     });
   } catch (error) {
     next(error);
@@ -473,7 +487,29 @@ export const cancelOrder = async (
 
     res.json({
       success: true,
-      order,
+      order: formatOrder(order),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── Delete Order (Admin Only) ────────────────────────────────────
+export const deleteOrder = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) {
+      res.status(404).json({ success: false, message: 'Order not found' });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: 'Order deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -487,10 +523,10 @@ export const getAllOrders = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { status, limit = 20, page = 1, startDate, endDate } = req.query;
+    const { status, limit = 50, page = 1, startDate, endDate } = req.query;
     
     const query: any = {};
-    if (status) query.orderStatus = status;
+    if (status && status !== 'all') query.orderStatus = status;
     
     if (startDate || endDate) {
       query.createdAt = {};
@@ -521,9 +557,11 @@ export const getAllOrders = async (
       },
     ]);
 
+    const formattedOrders = orders.map(formatOrder);
+
     res.json({
       success: true,
-      orders,
+      orders: formattedOrders,
       stats: stats[0] || { totalOrders: 0, totalRevenue: 0, averageOrderValue: 0 },
       pagination: {
         page: Number(page),

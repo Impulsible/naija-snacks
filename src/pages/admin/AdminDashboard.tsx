@@ -10,64 +10,125 @@ import {
   ChevronRight,
   Wallet,
   Clock,
-  Store
+  Store,
+  Loader2
 } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useQuery } from '@tanstack/react-query';
 import { orderService } from '../../services/orderService';
 import { userService } from '../../services/userService';
 import { productService } from '../../services/productService';
-import Loader from '../../components/ui/Loader';
+import { formatPrice } from '../../utils/formatPrice';
+
+// ─── Types ──────────────────────────────────────────────────────────
+interface Order {
+  id: string;
+  _id?: string;
+  orderNumber: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
+  total: number;
+  status: 'pending' | 'confirmed' | 'processing' | 'ready' | 'out_for_delivery' | 'delivered' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  createdAt: string;
+}
+
+interface Product {
+  id: string;
+  _id?: string;
+  name: string;
+  stock: number;
+  price: number;
+  category: string | { name: string };
+  image?: string;
+}
+
+interface User {
+  id: string;
+  _id?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
 
 const AdminDashboard = () => {
-  // Fetch real data
-  const { data: ordersData, isLoading: ordersLoading } = useQuery({
-    queryKey: ['admin-orders'],
-    queryFn: () => orderService.getAdminOrders(),
-    placeholderData: [],
+  // ─── Fetch Real Data ─────────────────────────────────────────────
+  const { data: ordersData, isLoading: ordersLoading, error: ordersError } = useQuery({
+    queryKey: ['admin-dashboard-orders'],
+    queryFn: async () => {
+      try { return await orderService.getAdminOrders(); }
+      catch (e) { console.error(e); return { orders: [] }; }
+    },
   });
 
-  const { data: usersData, isLoading: usersLoading } = useQuery({
-    queryKey: ['admin-users'],
-    queryFn: () => userService.getUsers(),
+  const { data: usersData } = useQuery({
+    queryKey: ['admin-dashboard-users'],
+    queryFn: async () => {
+      try { return await userService.getUsers(); }
+      catch (e) { console.error("Users API failed:", e); return { users: [] }; }
+    },
   });
 
-  const { data: productsData, isLoading: productsLoading } = useQuery({
-    queryKey: ['admin-products'],
-    queryFn: () => productService.getProducts({ limit: 50 }),
+  const { data: productsData, isLoading: productsLoading, error: productsError } = useQuery({
+    queryKey: ['admin-dashboard-products'],
+    queryFn: async () => {
+      try { return await productService.getProducts({ limit: 100 }); }
+      catch (e) { console.error(e); return { products: [] }; }
+    },
   });
 
-  // Safe data mapping
-  const orders = ordersData || [];
-  const products = productsData?.products || [];
-  const users = usersData?.users || [];
+  const isLoading = ordersLoading || productsLoading;
 
-  // KPI Calculations
+  // ─── Safe Data Mapping ────────────────────────────────────────────
+  const rawOrders = ordersData as any;
+  const rawUsers = usersData as any;
+  const rawProducts = productsData as any;
+
+  const orders: Order[] = Array.isArray(rawOrders) 
+    ? rawOrders 
+    : (rawOrders?.orders || []);
+  
+  const users: User[] = Array.isArray(rawUsers) 
+    ? rawUsers 
+    : (rawUsers?.users || []);
+  
+  const products: Product[] = Array.isArray(rawProducts)
+    ? rawProducts
+    : (rawProducts?.products || []);
+
+  // ─── KPI Calculations ─────────────────────────────────────────────
   const totalRevenue = orders
     .filter(order => order.paymentStatus === 'paid')
-    .reduce((sum, order) => sum + order.total, 0);
+    .reduce((sum, order) => sum + (order.total || 0), 0);
 
   const totalOrders = orders.length;
   const totalProducts = products.length;
-  const totalCustomers = users.length;
+  const totalCustomers = users.filter(u => u.role !== 'admin').length;
 
   const lowStockProducts = products
-    .filter(product => product.stock <= 10)
+    .filter(product => (product.stock || 0) <= 10)
     .slice(0, 3)
     .map(product => ({
-      id: product.id,
+      id: product.id || product._id || '',
       name: product.name,
-      stock: product.stock,
+      stock: product.stock || 0,
       threshold: 15,
       category: typeof product.category === 'string' 
         ? product.category 
         : product.category?.name || 'Uncategorized',
     }));
 
+  // ─── Stats ────────────────────────────────────────────────────────
   const stats = [
     {
+      id: 'stat-revenue',
       label: 'Gross Sales Revenue',
-      value: `₦${totalRevenue.toLocaleString()}`,
+      value: formatPrice(totalRevenue),
       change: '+12.5%',
       trend: 'up',
       period: 'vs last month',
@@ -75,6 +136,7 @@ const AdminDashboard = () => {
       gradient: 'from-emerald-500/10 to-teal-500/10 text-emerald-600 border-emerald-200/60',
     },
     {
+      id: 'stat-orders',
       label: 'Completed Orders',
       value: totalOrders.toString(),
       change: '+8.2%',
@@ -84,15 +146,17 @@ const AdminDashboard = () => {
       gradient: 'from-amber-500/10 to-orange-500/10 text-primary border-amber-200/60',
     },
     {
+      id: 'stat-menu',
       label: 'Active Snack Menu',
       value: totalProducts.toString(),
-      change: '+2 new',
+      change: `${products.filter(p => (p.stock || 0) > 0).length} in stock`,
       trend: 'up',
-      period: 'this week',
+      period: `${products.filter(p => (p.stock || 0) === 0).length} sold out`,
       icon: Package,
       gradient: 'from-blue-500/10 to-indigo-500/10 text-blue-600 border-blue-200/60',
     },
     {
+      id: 'stat-customers',
       label: 'Customer Base',
       value: totalCustomers.toString(),
       change: '+15.3%',
@@ -103,6 +167,7 @@ const AdminDashboard = () => {
     },
   ];
 
+  // ─── Helpers ──────────────────────────────────────────────────────
   const getStatusBadge = (status: string) => {
     const s = status?.toLowerCase() || 'pending';
     switch (s) {
@@ -136,11 +201,28 @@ const AdminDashboard = () => {
     }
   };
 
-  if (ordersLoading || usersLoading || productsLoading) {
+  // ─── Loading State ────────────────────────────────────────────────
+  if (isLoading) {
     return (
       <AdminLayout title="Store Dashboard" subtitle="Fetching store telemetry...">
-        <div className="flex justify-center py-32">
-          <Loader size="lg" />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 size={40} className="text-primary animate-spin" />
+            <p className="text-sm text-stone-500">Loading dashboard data...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // ─── Error State ──────────────────────────────────────────────────
+  if (ordersError || productsError) {
+    return (
+      <AdminLayout title="Store Dashboard" subtitle="Operational performance...">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+          <AlertTriangle size={48} className="text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-red-700 mb-2">Failed to Load Dashboard</h3>
+          <p className="text-red-600">{(ordersError || productsError)?.message || 'An error occurred.'}</p>
         </div>
       </AdminLayout>
     );
@@ -155,11 +237,11 @@ const AdminDashboard = () => {
         
         {/* ── KPI Stats Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {stats.map((stat, index) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div
-                key={index}
+                key={stat.id}
                 className="p-5 sm:p-6 rounded-3xl bg-white border border-amber-950/10 shadow-sm hover:shadow-md hover:border-amber-950/20 transition-all"
               >
                 <div className="flex items-center justify-between gap-2 mb-4">
@@ -214,32 +296,35 @@ const AdminDashboard = () => {
 
               <div className="divide-y divide-stone-100 pt-2">
                 {orders.length > 0 ? (
-                  orders.slice(0, 5).map((order: any) => (
-                    <div key={order.id || order._id} className="py-4 flex items-center justify-between gap-4 hover:bg-stone-50/50 rounded-2xl px-2 -mx-2 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-2xl bg-stone-100 border border-stone-200/60 text-stone-700 flex items-center justify-center font-heading font-black text-xs shrink-0">
-                          {order.orderNumber?.slice(-4) || 'NS'}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-heading font-black text-xs text-stone-900 truncate">
-                            {order.orderNumber || 'Unknown Order'}
-                          </p>
-                          <div className="flex items-center gap-2 text-[11px] text-stone-400 mt-0.5">
-                            <span className="flex items-center gap-1 font-medium">
-                              <Clock size={11} /> {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
-                            </span>
+                  orders.slice(0, 5).map((order: Order, idx: number) => {
+                    const orderKey = order.id || order._id || order.orderNumber || `dashboard-order-${idx}`;
+                    return (
+                      <div key={orderKey} className="py-4 flex items-center justify-between gap-4 hover:bg-stone-50/50 rounded-2xl px-2 -mx-2 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-2xl bg-stone-100 border border-stone-200/60 text-stone-700 flex items-center justify-center font-heading font-black text-xs shrink-0">
+                            {order.orderNumber?.slice(-4) || 'NS'}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-heading font-black text-xs text-stone-900 truncate">
+                              {order.orderNumber || 'Unknown Order'}
+                            </p>
+                            <div className="flex items-center gap-2 text-[11px] text-stone-400 mt-0.5">
+                              <span className="flex items-center gap-1 font-medium">
+                                <Clock size={11} /> {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="text-right shrink-0">
-                        <p className="font-heading font-black text-sm text-stone-900 mb-1">
-                          ₦{order.total?.toLocaleString() || '0'}
-                        </p>
-                        {getStatusBadge(order.status || order.orderStatus)}
+                        <div className="text-right shrink-0">
+                          <p className="font-heading font-black text-sm text-stone-900 mb-1">
+                            {formatPrice(order.total || 0)}
+                          </p>
+                          {getStatusBadge(order.status)}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="py-16 text-center flex flex-col items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-stone-50 flex items-center justify-center mb-3">
@@ -270,12 +355,13 @@ const AdminDashboard = () => {
 
               <div className="space-y-4 pt-4">
                 {lowStockProducts.length > 0 ? (
-                  lowStockProducts.map((product) => {
+                  lowStockProducts.map((product, idx: number) => {
+                    const productKey = product.id || `low-stock-prod-${idx}`;
                     const stockPercentage = Math.round((product.stock / product.threshold) * 100);
                     const isCritical = product.stock <= 5;
 
                     return (
-                      <div key={product.id} className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/60 space-y-2">
+                      <div key={productKey} className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/60 space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <p className="font-heading font-black text-xs text-stone-900 truncate">{product.name}</p>

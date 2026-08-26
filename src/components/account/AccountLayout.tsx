@@ -1,33 +1,34 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  Tag, 
-  BarChart3, 
+import {
+  User,
+  Package,
+  Heart,
+  MapPin,
   Settings,
   LogOut,
-  Menu,
-  X,
-  Store,
-  ExternalLink,
+  ChevronRight,
+  Home,
+  Sparkles,
   ShieldCheck,
-  Sparkles
+  ShoppingBag,
 } from 'lucide-react';
+import Container from '../layout/Container';
 import { useAuth } from '../../context/AuthContext';
 
-interface AdminLayoutProps {
+interface AccountLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) => {
+const AccountLayout: React.FC<AccountLayoutProps> = ({
+  children,
+  title,
+  subtitle,
+}) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -37,182 +38,196 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) 
   const initials =
     user?.firstName && user?.lastName
       ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-      : user?.email?.[0]?.toUpperCase() || 'A';
+      : user?.email?.[0]?.toUpperCase() || 'U';
+
+  const displayName =
+    user?.firstName || user?.lastName
+      ? [user.firstName, user.lastName].filter(Boolean).join(' ')
+      : user?.email?.split('@')[0] || 'Guest';
 
   const navItems = [
-    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    { to: '/admin/products', label: 'Products', icon: Package },
-    { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-    { to: '/admin/customers', label: 'Customers', icon: Users },
-    { to: '/admin/categories', label: 'Categories', icon: Tag },
-    { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { to: '/admin/settings', label: 'Settings', icon: Settings },
+    { to: '/account', label: 'Dashboard', icon: Home, end: true },
+    { to: '/account/orders', label: 'My Orders', icon: Package },
+    { to: '/account/favourites', label: 'Favourites', icon: Heart },
+    { to: '/account/addresses', label: 'Addresses', icon: MapPin },
+    { to: '/account/profile', label: 'Profile', icon: User },
+    { to: '/account/settings', label: 'Settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex">
-      {/* ── 1. Mobile Backdrop ───────────────────────────────────────── */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* ── 2. Sidebar Navigation ────────────────────────────────────── */}
-      <aside
-        className={`fixed inset-y-0 left-0 w-72 bg-stone-950 border-r border-stone-800/80 flex flex-col z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        {/* Brand Header */}
-        <div className="p-6 border-b border-stone-850 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white shadow-lg shadow-primary/25">
-              <Store size={20} className="stroke-[2.5]" />
-            </div>
-            <div>
-              <span className="font-heading font-black text-sm tracking-wider text-white block">
-                NAIJA SNACKS
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
-                  Admin Console
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden p-1.5 rounded-xl bg-stone-900 text-stone-400 hover:text-white transition-colors"
-            aria-label="Close sidebar"
+    <div className="min-h-screen bg-[#FFFDF9] py-8 sm:py-10 lg:py-14 text-stone-900">
+      <Container>
+        {/* Breadcrumb */}
+        <nav
+          className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold text-stone-500 mb-6 sm:mb-8 overflow-x-auto no-scrollbar"
+          aria-label="Breadcrumb"
+        >
+          <Link
+            to="/"
+            className="hover:text-primary transition-colors shrink-0"
           >
-            <X size={18} />
-          </button>
-        </div>
+            Home
+          </Link>
+          <ChevronRight size={14} className="text-stone-300 shrink-0" />
+          <span className="text-stone-900 font-black shrink-0">Account</span>
+          {title && title !== 'Dashboard' && (
+            <>
+              <ChevronRight size={14} className="text-stone-300 shrink-0" />
+              <span className="text-stone-600 truncate">{title}</span>
+            </>
+          )}
+        </nav>
 
-        {/* Navigation Links */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1.5">
-          <span className="px-3 text-[10px] font-black uppercase tracking-widest text-stone-300/80 block mb-2">
-            Main Management
-          </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* ── Sidebar ───────────────────────────────────────────── */}
+          <aside className="lg:col-span-4 xl:col-span-3 space-y-4">
+            {/* Profile card */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-900 via-stone-900 to-stone-950 text-white p-5 sm:p-6 border border-amber-900/20 shadow-lg shadow-amber-950/10">
+              <div
+                className="absolute -top-16 -right-16 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none"
+                aria-hidden
+              />
+              <div
+                className="absolute bottom-0 left-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"
+                aria-hidden
+              />
 
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={() => setIsSidebarOpen(false)}
-              className={({ isActive }) =>
-                `group flex items-center justify-between px-3.5 py-3 rounded-2xl font-heading text-xs font-bold transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-primary to-orange-600 text-white shadow-lg shadow-primary/20'
-                    : 'text-stone-400 hover:text-white hover:bg-stone-900/60'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <div className="flex items-center gap-3">
-                    <item.icon
-                      size={18}
-                      className={isActive ? 'text-white' : 'text-stone-300 group-hover:text-stone-200 transition-colors'}
-                    />
-                    <span>{item.label}</span>
+              <div className="relative z-10 flex items-center gap-3.5">
+                <div className="relative shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center text-lg font-black shadow-md shadow-primary/30">
+                    {initials}
                   </div>
-                  {isActive && (
-                    <Sparkles size={13} className="text-white/80 fill-current" />
-                  )}
-                </>
-              )}
-            </NavLink>
-          ))}
-        </div>
-
-        {/* User Card & Logout */}
-        <div className="p-4 border-t border-stone-850/80 bg-stone-950/40 space-y-3">
-          <div className="p-3 rounded-2xl bg-stone-900/90 border border-stone-800/80 flex items-center gap-3">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-primary text-white flex items-center justify-center font-heading font-black text-sm">
-                {initials}
+                  <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-stone-900" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-heading font-black text-base sm:text-lg text-white truncate leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-[11px] text-stone-400 truncate mt-0.5">
+                    {user?.email}
+                  </p>
+                  <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-lg bg-white/10 border border-white/10 text-[9px] font-black uppercase tracking-wider text-amber-200">
+                    <ShieldCheck size={10} />
+                    {user?.role === 'admin' ? 'Admin' : 'Member'}
+                  </span>
+                </div>
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-stone-900" />
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-black text-white truncate">
-                {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Store Admin'}
-              </p>
-              <div className="flex items-center gap-1 mt-0.5">
-                <ShieldCheck size={11} className="text-primary shrink-0" />
-                <span className="text-[10px] text-stone-400 font-semibold capitalize truncate">
-                  {user?.role || 'Staff Member'}
-                </span>
+
+              {/* Quick links strip */}
+              <div className="relative z-10 mt-5 pt-4 border-t border-white/10 grid grid-cols-2 gap-2">
+                <Link
+                  to="/account/orders"
+                  className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-stone-200 transition-colors"
+                >
+                  <Package size={12} className="text-primary" />
+                  Orders
+                </Link>
+                <Link
+                  to="/explore"
+                  className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-stone-200 transition-colors"
+                >
+                  <ShoppingBag size={12} className="text-amber-400" />
+                  Shop
+                </Link>
               </div>
             </div>
-          </div>
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl text-xs font-bold text-stone-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all active:scale-[0.98]"
-          >
-            <LogOut size={15} />
-            <span>Sign Out Session</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ── 3. Main Content Container ────────────────────────────────── */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-w-0">
-        
-        {/* Sticky Glassmorphic Header */}
-        <header className="sticky top-0 z-30 backdrop-blur-md bg-white/85 border-b border-amber-950/5 px-4 sm:px-8 py-4 flex items-center justify-between gap-4 transition-all">
-          <div className="flex items-center gap-3 min-w-0">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-stone-100 text-stone-600 hover:text-stone-900 hover:bg-stone-200 transition-colors"
-              aria-label="Open sidebar menu"
-            >
-              <Menu size={20} />
-            </button>
-            
-            <div className="min-w-0">
-              <h1 className="font-heading font-black text-lg sm:text-xl text-stone-900 truncate">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-xs text-stone-500 font-medium truncate hidden sm:block">
-                  {subtitle}
+            {/* Nav card */}
+            <div className="bg-white rounded-3xl border border-amber-950/10 shadow-sm overflow-hidden">
+              <div className="px-4 pt-4 pb-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-900/50 px-2">
+                  Account menu
                 </p>
-              )}
+              </div>
+
+              <nav className="px-2 pb-2 space-y-0.5" aria-label="Account navigation">
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      `group flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+                        isActive
+                          ? 'bg-primary/10 text-primary shadow-sm'
+                          : 'text-stone-700 hover:bg-amber-50/80 hover:text-stone-900'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <span
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                            isActive
+                              ? 'bg-primary text-white shadow-md shadow-primary/25'
+                              : 'bg-amber-50 text-stone-500 group-hover:bg-amber-100/80 group-hover:text-primary'
+                          }`}
+                        >
+                          <item.icon size={16} />
+                        </span>
+                        <span className="flex-1 min-w-0 truncate">{item.label}</span>
+                        <ChevronRight
+                          size={14}
+                          className={`shrink-0 transition-all ${
+                            isActive
+                              ? 'text-primary opacity-100'
+                              : 'text-stone-300 opacity-0 group-hover:opacity-100'
+                          }`}
+                        />
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="p-2 pt-1 border-t border-amber-950/5">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <span className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                    <LogOut size={16} />
+                  </span>
+                  <span>Sign out</span>
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Quick Actions Header */}
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              to="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-primary text-xs font-black border border-stone-200/60 hover:border-amber-200 transition-all active:scale-95 shadow-sm"
-            >
-              <span>Live Store</span>
-              <ExternalLink size={13} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Link>
-          </div>
-        </header>
+            {/* Trust strip (desktop) */}
+            <div className="hidden lg:flex items-center gap-2 px-3 py-2.5 rounded-2xl bg-amber-50/60 border border-amber-900/10 text-[10px] font-bold text-stone-600">
+              <Sparkles size={12} className="text-primary shrink-0" />
+              <span>Secure account · Naija Snacks Express</span>
+            </div>
+          </aside>
 
-        {/* Content Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-200">
-          {children}
-        </main>
-      </div>
+          {/* ── Main content ──────────────────────────────────────── */}
+          <main className="lg:col-span-8 xl:col-span-9 min-w-0">
+            <div className="bg-white rounded-3xl border border-amber-950/10 shadow-sm overflow-hidden">
+              {/* Page header */}
+              <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-5 border-b border-amber-950/5 bg-gradient-to-r from-amber-50/40 via-white to-white">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <h1 className="text-2xl sm:text-3xl font-heading font-black tracking-tight text-stone-900">
+                      {title}
+                    </h1>
+                    {subtitle && (
+                      <p className="text-xs sm:text-sm text-stone-500 font-medium mt-1.5 max-w-xl leading-relaxed">
+                        {subtitle}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Slot content */}
+              <div className="p-5 sm:p-8">{children}</div>
+            </div>
+          </main>
+        </div>
+      </Container>
     </div>
   );
 };
 
-export default AdminLayout;
+export default AccountLayout;
